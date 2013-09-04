@@ -1,3 +1,41 @@
+# InkCutter
+# Forked from InkCut v1.0
+# Majority of the work contained was written by Jairus Martin
+# <frmdstryr@gmail.com>
+
+See below for requirements, et all.
+
+This fork is purely for a small functionality upgrade. InkCut development
+has been stalled for quite some time, and I felt that the issue at hand,
+while fairly specific, warranted some further exploration.
+
+The Scene:
+
+US Plotter Refine MH871 which, when plugged in via USB to a Linux host, is
+recognized as a very generic USB printer assigned to /dev/usb/lp0.
+
+Neither the Printer nor Serial configurations in InkCut would see or print
+to this device (a character device.) The Printer settings used CUPS to
+search for and utilize printing devices, while the Serial settings want to
+perform IOCTL's, and set baud rates and parity, etc. Obviously not going to
+happen on a character device.
+
+Immediately, I tested and was able to simply dump plain-text HPGL files to
+/dev/usb/lp0, and the plotter would respond in kind. So, on to the simple
+/task. I basically just added a couple new controls in the glade config, and
+/added a section in the python source to check these controls just like the
+/Printer and Serial controls were checked to come up with a device to plot
+/to.
+
+One thing to note: For me at least, using this printer requires CUPS to be
+disabled, so you'll find in this source that it is so. Check out
+inkcut/app/main.py to find the commented out section if you're going to use
+CUPS. As a caution, I'd recommend you also then comment out the usblp-driven
+code. But, if you were going to do that at this point, you shouldn't be
+trying my fork of already-working code for that setup.
+
+On to the show!
+
 # InkCut v1.0
 # Written by Jairus Martin, frmdstryr@gmail.com
 
