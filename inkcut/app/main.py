@@ -22,7 +22,7 @@
 #-----------------------------------------------------------------------
 #
 
-import pygtk,sys,os,logging
+import pygtk,sys,os,logging, inspect
 pygtk.require('2.0')
 import gtk
 from lxml import etree
@@ -33,8 +33,19 @@ from bin.settings import Settings
 from bin.device import Device
 import subprocess
 
+ # use this if you want to include modules from a subforder
+ #cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"bin\\serial")))
+cmd_subfolder = "C:\\Program Files (x86)\\Inkscape\\share\\extensions\\inkcut\\app\\bin\\serial"
+ 
+if cmd_subfolder not in sys.path:
+	sys.path.insert(0, cmd_subfolder)
+
 appPath = os.path.dirname(__file__)
-LOG_FILENAME = os.path.join(appPath,'tmp','log')
+
+if os.name == 'nt':
+	LOG_FILENAME = "c:\\temp\\inkcutter.log"
+else:
+	LOG_FILENAME = os.path.join(appPath,'tmp','log')
 
 units = {'in':90.0, 'pt':1.25, 'px':1, 'mm':3.5433070866, 'cm':35.433070866, 'm':3543.3070866,'km':3543307.0866, 'pc':15.0, 'yd':3240 , 'ft':1080}
 
@@ -141,6 +152,7 @@ class Application(object):
 		
 		# printer options
 		"""
+
 		import cups
 		con = cups.Connection()
 		printers = con.getPrinters()
@@ -168,8 +180,11 @@ class Application(object):
 			from bin.serial.scanlinux import scan
 			ports = scan()
 		# fk windows
-		#elif os.name == 'nt':
-		#	from scanwin32 import *
+		elif os.name == 'nt':
+			from scanwin32 import comports
+			ports = []
+			for order, port, desc, hwid in sorted(comports()):
+				ports.append(port)
 		else:
 			from scan import scan
 			ports = scan()
@@ -231,33 +246,50 @@ class Application(object):
 			cb.add_attribute(cell, 'text', 0)
 
 	
-	def on_preview_clicked(self,data=None):
+	def on_preview_clicked(self, data=None):
 		psvg = preview.hpgl(self.plot)
-		filename = os.path.join(appPath,'tmp','InkCutPreview.svg')
+		if os.name == 'nt':
+			filename = "c:\\temp\\InkCutterPreview.svg"
+			prevname = "c:\\temp\\InkCutterPreview.png"
+		else:
+			filename = os.path.join(appPath,'tmp','InkCutPreview.svg')
+
 		f = open(filename,'w+')
 		svgstring = etree.tostring(psvg)
 		f.write(svgstring)
 		f.close()
-		if self.gui['inkscape_preview'].get_active() and not data == 'first':
-			try:
-				self.inkscapePreviewProcess.kill()
-			except:
-				self.inkscapePreviewProcess = None
-				
-			self.inkscapePreviewProcess = subprocess.Popen(['inkscape',filename],stdout=open(LOG_FILENAME,'a'),stderr=open(LOG_FILENAME,'a'))			
+		#if self.gui['inkscape_preview'].get_active() and not data == 'first':
+		try:
+			self.inkscapePreviewProcess.kill()
+		except:
+			self.inkscapePreviewProcess = None
+
+		if os.name == "nt":
+			import time
+			self.inkscapePreviewProcess = subprocess.Popen(['inkscape', '-e', prevname, filename], stdout=open(LOG_FILENAME, 'a'), stderr=open(LOG_FILENAME, 'a'))
+
+			if data == "first":
+				time.sleep(1)
 		else:
-			#self.set_settings('last')
-			#-----------------------show preview --------------------
-			w  = float(psvg.get('width'))
-			h = float(psvg.get('height'))
-			scale = 320.0/h
+			self.inkscapePreviewProcess = subprocess.Popen(['inkscape',filename],stdout=open(LOG_FILENAME,'a'),stderr=open(LOG_FILENAME,'a'))			
+		#else:
+		#self.set_settings('last')
+		#-----------------------show preview --------------------
+		
+		w  = float(psvg.get('width'))
+		h = float(psvg.get('height'))
+		scale = 320.0/h
+
+		if os.name == 'nt':
+			pb = gtk.gdk.pixbuf_new_from_file_at_size(prevname, int(w*scale), 320)
+		else:
 			loader = gtk.gdk.PixbufLoader( 'svg' )
 			loader.set_size(int(w*scale),320)
 			loader.write(svgstring)
 			loader.close()
 			pb = loader.get_pixbuf()
-			self.gui['preview1'].set_from_pixbuf( pb )
-		
+
+		self.gui['preview1'].set_from_pixbuf( pb )		
 	
 	def on_cut_clicked(self,button):
 		# cut it out
@@ -268,7 +300,10 @@ class Application(object):
 			f.close()
 		
 		if self.gui['cutter-box'].get_active():
-			f = open(os.path.join(appPath,'tmp','plot.hpgl'),'w+')
+			if os.name == 'nt':
+				f = open("c:\\temp\\plot.hpgl", "w+")
+			else:
+				f = open(os.path.join(appPath,'tmp','plot.hpgl'),'w+')
 			f.write(hpgl)
 			f.close()
 		
@@ -288,7 +323,11 @@ class Application(object):
 	
 	def on_send_clicked(self,button):
 		dev = Device(self.read_dev_settings())
-		dev.plot(os.path.join(appPath,'tmp','plot.hpgl'))
+
+		if os.name == 'nt':
+			dev.plot("c:\\temp\\plot.hpgl")
+		else:
+			dev.plot(os.path.join(appPath,'tmp','plot.hpgl'))
 		
 	def on_interface_changed(self,button):
 		x = 0
