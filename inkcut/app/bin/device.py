@@ -24,8 +24,10 @@
 #
 import serial
 from lxml import etree
-import cups
 import os
+
+if os.name != 'nt':
+	import cups
 
 class Device:
 	def __init__(self,config={}):

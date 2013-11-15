@@ -17,6 +17,8 @@ Immediately, I tested and was able to simply dump plain-text HPGL files to /dev/
 
 One thing to note: For me at least, using this printer requires CUPS to be disabled, so you'll find in this source that it is so. Check out inkcut/app/main.py to find the commented out section if you're going to use CUPS. As a caution, I'd recommend you also then comment out the usblp-driven code. But, if you were going to do that at this point, you shouldn't be trying my fork of already-working code for that setup.
 
+As of November 14, 2013 InkCutter supports sending data to plotters from Windows. There are some assumptions that are currently made: You have a plotter connected to a Serial COM port, and there are usable COM ports that Inkscape can see.
+
 On to the show!
 
 # InkCut v1.0
