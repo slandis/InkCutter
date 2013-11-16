@@ -1,26 +1,25 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+
+# InkCutter, Plot HPGL directly from Inkscape.
+# main.py
 #
-#	  name.py
-#-----------------------------------------------------------------------
-#	  Copyright 2010 Jairus Martin <frmdstryr@gmail.com>
-#	  
-#	  This program is free software; you can redistribute it and/or modify
-#	  it under the terms of the GNU General Public License as published by
-#	  the Free Software Foundation; either version 2 of the License, or
-#	  (at your option) any later version.
-#	  
-#	  This program is distributed in the hope that it will be useful,
-#	  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#	  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#	  GNU General Public License for more details.
-#	  
-#	  You should have received a copy of the GNU General Public License
-#	  along with this program; if not, write to the Free Software
-#	  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#	  MA 02110-1301, USA.
-#-----------------------------------------------------------------------
+# Copyright 2010 Jairus Martin <frmdstryr@gmail.com>
+# Copyright 2013 Shaun Landis <slandis@gmail.com>
+#       
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 #
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301, USA.
 
 import pygtk,sys,os,logging, inspect
 pygtk.require('2.0')
@@ -33,22 +32,20 @@ from bin.settings import Settings
 from bin.device import Device
 import subprocess
 
- # use this if you want to include modules from a subforder
- #cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"bin\\serial")))
-cmd_subfolder = "C:\\Program Files (x86)\\Inkscape\\share\\extensions\\inkcut\\app\\bin\\serial"
+# use this if you want to include modules from a subforder
+if os.name == 'nt':
+	cmd_subfolder = "C:\\Program Files (x86)\\Inkscape\\share\\extensions\\inkcut\\app\\bin\\serial"
+	LOG_FILENAME = "C:\\temp\\inkcutter.log"
+else:
+	cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"bin\\serial")))
+	LOG_FILENAME = os.path.join(appPath,'tmp','log')
  
 if cmd_subfolder not in sys.path:
 	sys.path.insert(0, cmd_subfolder)
 
 appPath = os.path.dirname(__file__)
 
-if os.name == 'nt':
-	LOG_FILENAME = "c:\\temp\\inkcutter.log"
-else:
-	LOG_FILENAME = os.path.join(appPath,'tmp','log')
-
 units = {'in':90.0, 'pt':1.25, 'px':1, 'mm':3.5433070866, 'cm':35.433070866, 'm':3543.3070866,'km':3543307.0866, 'pc':15.0, 'yd':3240 , 'ft':1080}
-
 
 class Application(object):
 	def __init__(self, svg, nodes,inkex):
@@ -70,7 +67,6 @@ class Application(object):
 		self.nodes = getSelectedById(nodes)
 		logging.info("Selected elements: %s"%(self.nodes))
 		
-		
 		#-----------------------start building gui--------------------
 		builder = gtk.Builder()
 		glade = os.path.join(appPath,"gui","inkcut.glade")
@@ -90,8 +86,6 @@ class Application(object):
 		for widget in widgets:
 			self.gui[widget] = builder.get_object(widget)
 			
-		
-		
 		#-----------------------Create Graphic & Initialize Plot --------------------
 		self.plot = hpgl.Plot()
 		self.plot.loadGraphic(self.nodes)
@@ -119,8 +113,6 @@ class Application(object):
 		self.on_reset_stack_btn_clicked(self.gui['copies'])
 		self.on_order_changed(self.gui['order_combo'])
 		
-		
-		
 		# do this last...
 		self.on_preview_clicked('first')
 		#-----------------------show windows--------------------
@@ -130,10 +122,7 @@ class Application(object):
 		self.log_dialog  = builder.get_object( "dialog2" )
 		self.plot_dialog  = builder.get_object( "dialog3" )
 		builder.connect_signals(self)
-	
-
 		
-	
 	def set_adjustment_values(self,builder,etree): # fix defaults not loading
 		for object in etree.xpath('/interface/object[@class="GtkAdjustment"]'):
 			property = object.xpath('property[@name="value"]')
@@ -141,7 +130,6 @@ class Application(object):
 				obj = builder.get_object(object.get('id'))
 				obj.set_value(float(property[0].text))
 			
-   
 	# ------------ combobox population & functions ------------------
 	
 	def populate_combos(self,builder): # populate combo boxes
@@ -152,7 +140,6 @@ class Application(object):
 		
 		# printer options
 		"""
-
 		import cups
 		con = cups.Connection()
 		printers = con.getPrinters()
@@ -189,7 +176,6 @@ class Application(object):
 			from scan import scan
 			ports = scan()
 			
-		
 		combo = builder.get_object("port")
 		self.set_model_from_list(combo,ports)
 		combo.set_active(len(ports)-1)
@@ -222,8 +208,7 @@ class Application(object):
 		for material in xml:
 			materials.append(material.attrib['name'])
 		self.set_model_from_list(combo,materials)
-		combo.set_active(0)
-		
+		combo.set_active(0)		
 	
 	def get_combobox_active_text(self,combobox):
 	   model = combobox.get_model()
@@ -245,7 +230,6 @@ class Application(object):
 			cb.pack_start(cell, True)
 			cb.add_attribute(cell, 'text', 0)
 
-	
 	def on_preview_clicked(self, data=None):
 		psvg = preview.hpgl(self.plot)
 		if os.name == 'nt':
@@ -313,14 +297,12 @@ class Application(object):
 		buffer =  self.gui['plotdetails'].get_buffer()
 		text = "Plot data size (characters): %i \n"%(len(hpgl))
 		text +="Vinyl used: %.2fcm \n"%(round(self.plot.size[0]/units['cm'],2))
-		#text +="Estimated time: %d minutes \n"%((self.plot.length)/(self.plot.velocity*60*units['cm']))
+		text +="Estimated time: %d minutes \n"%((self.plot.length)/(self.plot.velocity*60*units['cm']))
 		buffer.set_text(text)
-		
 		
 		self.plot_dialog.run()
 		self.plot_dialog.hide()
-		
-	
+			
 	def on_send_clicked(self,button):
 		dev = Device(self.read_dev_settings())
 
