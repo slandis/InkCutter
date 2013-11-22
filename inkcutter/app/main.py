@@ -34,7 +34,7 @@ import subprocess
 
 # use this if you want to include modules from a subforder
 if os.name == 'nt':
-	cmd_subfolder = "C:\\Program Files (x86)\\Inkscape\\share\\extensions\\inkcut\\app\\bin\\serial"
+	cmd_subfolder = "C:\\Program Files (x86)\\Inkscape\\share\\extensions\\inkcutter\\app\\bin\\serial"
 	LOG_FILENAME = "C:\\temp\\inkcutter.log"
 else:
 	cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"bin\\serial")))
