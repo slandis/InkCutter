@@ -1,7 +1,7 @@
 <inkscape-extension>
-  <_name>InkCut v1.0</_name>
-  <id>org.ekips.filter.inkcutv1.0</id>
-  <dependency type="executable" location="extensions">inkcut/inkcutext.py</dependency>
+  <_name>InkCutter</_name>
+  <id>org.plague.filter.inkcutter</id>
+  <dependency type="executable" location="extensions">inkcutter/inkcutter.py</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>  
   <effect>
     <object-type>all</object-type>
@@ -10,7 +10,7 @@
     </effects-menu>
   </effect>
   <script>
-    <command reldir="extensions" interpreter="python">inkcut/inkcutext.py</command>
+    <command reldir="extensions" interpreter="python">inkcutter/inkcutter.py</command>
   </script>
 </inkscape-extension>
 

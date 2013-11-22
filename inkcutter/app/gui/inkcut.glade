@@ -5,15 +5,15 @@
   <object class="GtkAboutDialog" id="aboutdialog1">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
-    <property name="title" translatable="yes">About InkCut</property>
+    <property name="title" translatable="yes">About InkCutter</property>
     <property name="window_position">center</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">normal</property>
     <property name="program_name">InkCut</property>
     <property name="version">v1.0</property>
-    <property name="copyright" translatable="yes">Copyright 2010 Jairus Martin</property>
+    <property name="copyright" translatable="yes">Copyright 2010 Jairus Martin, Copyright 2013 Shaun Landis</property>
     <property name="comments" translatable="yes">Send hpgl directly to a cutter/plotter from Inkscape.</property>
-    <property name="website">http://www.inkscapeforum.com/viewtopic.php?f=31&amp;amp;t=4987</property>
+    <property name="website">http://www.github.com/slandis/InkCutter</property>
     <property name="license" translatable="yes">                    GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
@@ -689,7 +689,7 @@ the library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.  But first, please read
 &lt;http://www.gnu.org/philosophy/why-not-lgpl.html&gt;.
 </property>
-    <property name="authors">Jairus Martin
+    <property name="authors">Jairus Martin, Shaun Landis
 Special thanks to nosklo!</property>
     <property name="documenters"></property>
     <property name="artists"></property>
@@ -1128,6 +1128,7 @@ Special thanks to nosklo!</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
+                        <!-- No printer device support right now...
                         <child>
                           <object class="GtkExpander" id="expander4">
                             <property name="visible">True</property>
@@ -1186,6 +1187,7 @@ Special thanks to nosklo!</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
+                        -->
                         <child>
                           <object class="GtkExpander" id="expander5">
                             <property name="visible">True</property>

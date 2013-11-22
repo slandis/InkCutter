@@ -75,13 +75,13 @@ class Application(object):
 		self.set_adjustment_values(builder,glade)
 		self.populate_combos(builder)
 		
-		#-----------------------saved widgets--------------------
+		# widgets should include 'printer' if checking CUPS or Win32Spool...
 		widgets = ['offset','overcut','smoothness','textviewlog','preview1','preview2','pathh','pathw',
 			'material','material-length','material-width','velocity','force','feed','scale','copies','posnx','posny',
 			'spacing-row','spacing-col','margin','tile-col','tile-row','weed_box','weed_v_box','weed_h_box',
 			'overcut-box','offset-box','cutter-box','file-box','feeding1','feeding2','invert-box','rotate-box','filechooserbutton1',
 			'plotdata','plotdetails','inkscape_preview','order_box','order_combo',
-			'device-length','device-width','calibration','interface','printer','usbprinter','port','baudrate','parity','bytesize','stopbits','xonxoff','rtscts','dsrdtr']
+			'device-length','device-width','calibration','interface','usbprinter','port','baudrate','parity','bytesize','stopbits','xonxoff','rtscts','dsrdtr']
 		self.gui = {}
 		for widget in widgets:
 			self.gui[widget] = builder.get_object(widget)
@@ -130,16 +130,16 @@ class Application(object):
 				obj = builder.get_object(object.get('id'))
 				obj.set_value(float(property[0].text))
 			
-	# ------------ combobox population & functions ------------------
-	
 	def populate_combos(self,builder): # populate combo boxes
 		# interfaces
 		combo = builder.get_object("interface")
-		self.set_model_from_list(combo,['USB Printer','Printer','Serial'])
+		#...(combo,['USB Printer','Printer','Serial'])
+		self.set_model_from_list(combo,['USB Printer','Serial'])
 		combo.set_active(1)
 		
 		# printer options
 		"""
+		Someday we'll add in a check for cups...
 		import cups
 		con = cups.Connection()
 		printers = con.getPrinters()
@@ -242,7 +242,7 @@ class Application(object):
 		svgstring = etree.tostring(psvg)
 		f.write(svgstring)
 		f.close()
-		#if self.gui['inkscape_preview'].get_active() and not data == 'first':
+
 		try:
 			self.inkscapePreviewProcess.kill()
 		except:
@@ -255,15 +255,14 @@ class Application(object):
 			if data == "first":
 				time.sleep(1)
 		else:
-			self.inkscapePreviewProcess = subprocess.Popen(['inkscape',filename],stdout=open(LOG_FILENAME,'a'),stderr=open(LOG_FILENAME,'a'))			
-		#else:
-		#self.set_settings('last')
-		#-----------------------show preview --------------------
+			self.inkscapePreviewProcess = subprocess.Popen(['inkscape',filename],stdout=open(LOG_FILENAME,'a'),stderr=open(LOG_FILENAME,'a'))
 		
 		w  = float(psvg.get('width'))
 		h = float(psvg.get('height'))
 		scale = 320.0/h
 
+		# For some reason, gdkpixbuf on WIN32 doesn't have SVG support, so we'll hack around that
+		# and preview a PNG instead...
 		if os.name == 'nt':
 			pb = gtk.gdk.pixbuf_new_from_file_at_size(prevname, int(w*scale), 320)
 		else:
@@ -297,7 +296,7 @@ class Application(object):
 		buffer =  self.gui['plotdetails'].get_buffer()
 		text = "Plot data size (characters): %i \n"%(len(hpgl))
 		text +="Vinyl used: %.2fcm \n"%(round(self.plot.size[0]/units['cm'],2))
-		text +="Estimated time: %d minutes \n"%((self.plot.length)/(self.plot.velocity*60*units['cm']))
+		#text +="Estimated time: %d minutes \n"%((self.plot.length)/(self.plot.velocity*60*units['cm']))
 		buffer.set_text(text)
 		
 		self.plot_dialog.run()
@@ -458,8 +457,10 @@ class Application(object):
 	def read_dev_settings(self):
 		if self.get_combobox_active_text(self.gui['interface']).lower() == "usb printer":
 			name = self.get_combobox_active_text(self.gui['usbprinter'])
+		#elif self.get_combobox_active_text(self.gui['interface']).lower() == "printer":
+		#	name = self.get_combobox_active_text(self.gui['printer'])
 		else:
-			name = self.get_combobox_active_text(self.gui['printer'])
+			name = self.get_combobox_active_text(self.gui['port'])
 		
 		s = {'width':self.gui['device-width'],
 			'length':self.gui['device-length'],
@@ -471,7 +472,6 @@ class Application(object):
 			}
 		return s
 	
-	# ------------ window management ------------------
 	def gtk_main_quit( self, window ):
 		self.settings.save('last')
 		try:
@@ -494,8 +494,7 @@ class Application(object):
 		self.properties_dialog.run()
 		self.properties_dialog.hide()
 	
-	def on_openlog_clicked( self, button ):
-		
+	def on_openlog_clicked( self, button ):	
 		log = open(LOG_FILENAME,'r')
 		buffer =  self.gui['textviewlog'].get_buffer()
 		buffer.set_text(log.read())
