@@ -6,16 +6,23 @@ This code is forked from InkCut v1.0, which allowed plotting to various plotters
 
 This code is driven by the hardware that I own and use. I make no claim that it will work universally for whatever plotter you happen to own. That being the case, printing to CUPS is disabled. If you re-enabled it, you're on your own. The legacy code surrounding CUPS support is currently only left behind for reference.
 
+Using
+-------------------------------------------
+All objects and text must be converted to paths. Does not support groups. You must ungroup and merge with a union to cut.
+
 Install
 -------------------------------------------
 
 copy the contents of this folder into
 the inkscape extensions folder
 
-on ubuntu:
+Linux:
 /home/username/.config/inkscape/extensions
 
-restart inskcape
-look for the extension under extensions-> cutter / plotter - > InkCutter
+Windows
+C:\Program Files (x86)\Inkscape\share\extensions
+
+Restart Inkscape
+look for the extension under extensions-> Cutter / Plotter - > InkCutter
 
 Enjoy!
