@@ -32,6 +32,9 @@ from bin.settings import Settings
 from bin.device import Device
 import subprocess
 
+# Fixed via nusse@teamidiot.de
+appPath = os.path.dirname(__file__)
+
 # use this if you want to include modules from a subforder
 if os.name == 'nt':
 	cmd_subfolder = "C:\\Program Files (x86)\\Inkscape\\share\\extensions\\inkcutter\\app\\bin\\serial"
@@ -42,8 +45,6 @@ else:
  
 if cmd_subfolder not in sys.path:
 	sys.path.insert(0, cmd_subfolder)
-
-appPath = os.path.dirname(__file__)
 
 units = {'in':90.0, 'pt':1.25, 'px':1, 'mm':3.5433070866, 'cm':35.433070866, 'm':3543.3070866,'km':3543307.0866, 'pc':15.0, 'yd':3240 , 'ft':1080}
 
