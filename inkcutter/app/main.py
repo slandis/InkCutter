@@ -32,7 +32,7 @@ from bin.settings import Settings
 from bin.device import Device
 import subprocess
 
-# Fixed via nusse@teamidiot.de
+# Fixed via Daniel Maier
 appPath = os.path.dirname(__file__)
 
 # use this if you want to include modules from a subforder
